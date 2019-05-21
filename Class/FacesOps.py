@@ -12,6 +12,25 @@ class FacesOps(object):
     def __init__(self):
         self.aip = Config.getAipFace()
         self.video = cv.VideoCapture(0)
+        self.video.set(cv.CAP_PROP_FPS, 60)
+
+    def image_to_base64(self, image_np):
+
+        image = cv.imencode('.jpg', image_np)[1]
+        image_code = str(bs.b64encode(image))[2:-1]
+
+        return image_code
+
+    def base64_to_image(self, base64_code):
+
+        # base64解码
+        img_data = bs.b64decode(base64_code)
+        # 转换为np数组
+        img_array = np.fromstring(img_data, np.uint8)
+        # 转换成opencv可用格式
+        img = cv.imdecode(img_array, cv.COLOR_RGB2BGR)
+
+        return img
 
     def detectFaces(self):
         # 设置
@@ -25,11 +44,7 @@ class FacesOps(object):
         imageType = "BASE64"
 
         success, frame = self.video.read()
-        cv.imwrite('./temp/temp.png', frame)
-
-        img = open('./temp/temp.png', 'rb')
-        img = bs.b64encode(img.read())
-        image64 = str(img, 'utf-8')
+        image64 = self.image_to_base64(frame)
         result = self.aip.detect(image64, imageType, detect_options)
         if result['error_code'] == 0:
             if result['result']['face_num'] > 0:
@@ -52,10 +67,7 @@ class FacesOps(object):
                     min_pos = np.amin(point, 0)
                     max_pos = np.amax(point, 0)
                     facearea = frame[min_pos[1]:max_pos[1], min_pos[0]:max_pos[0]]
-                    cv.imwrite('./temp/temp.png', facearea)
-                    img = open('./temp/temp.png', 'rb')
-                    img = bs.b64encode(img.read())
-                    image64 = str(img, 'utf-8')
+                    image64 = self.image_to_base64(facearea)
                     search = self.aip.search(image64, imageType, group_id_list, search_options)
                     if search['error_code'] == 0:
                         user = search['result']['user_list'][0]
@@ -63,7 +75,7 @@ class FacesOps(object):
                             if user['group_id'] == 'cdmcadmin' or user['group_id'] == 'cdmcuser':
                                 font = cv.FONT_HERSHEY_SIMPLEX  # 定义字体
                                 label = 'admin' if user['group_id'] == 'cdmcadmin' else 'user'
-                                cv.putText(frame, label+':'+user['user_info'], (min_pos[0], min_pos[1]), font, 0.9,
+                                cv.putText(frame, label + ':' + user['user_info'], (min_pos[0], min_pos[1]), font, 0.9,
                                            (255, 255, 255), 1)
                                 # 图像，文字内容， 坐标 ，字体，大小，颜色，字体厚度
                             else:
@@ -90,7 +102,6 @@ class FacesOps(object):
                             font = cv.FONT_HERSHEY_SIMPLEX  # 定义字体
                             cv.putText(frame, 'stranger', (min_pos[0], min_pos[1]), font, 0.9,
                                        (255, 255, 255), 1)
-                    # cv.imwrite("./imgs/faces/"+str(datetime.date)+".png", facearea)
                     cv.line(frame, (point[0][0], point[0][1]), (point[1][0], point[1][1]), (0, 0, 255), 2)
                     cv.line(frame, (point[0][0], point[0][1]), (point[2][0], point[2][1]), (0, 0, 255), 2)
                     cv.line(frame, (point[2][0], point[2][1]), (point[3][0], point[3][1]), (0, 0, 255), 2)
