@@ -9,10 +9,13 @@ from Class import Config
 
 
 class FacesOps(object):
-    def __init__(self):
+    def __init__(self, cam=0):
         self.aip = Config.getAipFace()
-        self.video = cv.VideoCapture(0)
-        self.video.set(cv.CAP_PROP_FPS, 60)
+        self.video = cv.VideoCapture(cam)
+        if not self.video.isOpened():
+            print('无效摄像头')
+            self.video = cv.VideoCapture(0)
+        self.video.set(cv.CAP_PROP_FPS, 90)
 
     def image_to_base64(self, image_np):
 
