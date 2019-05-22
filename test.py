@@ -159,7 +159,7 @@ class MyGUI(QtWidgets.QWidget):
             self.timerCamera.start(50)
 
     def ChangeCamera(self, i):
-        self.aip = CameraDevice.FacesOps(i)
+        self.aip.changeCam(i)
         return
 
 
