@@ -15,7 +15,7 @@ class FacesOps(object):
         if not self.video.isOpened():
             print('无效摄像头')
             self.video = cv.VideoCapture(0)
-        self.video.set(cv.CAP_PROP_FPS, 90)
+        self.video.set(6, cv.VideoWriter.fourcc('M', 'J', 'P', 'G'))
 
     def image_to_base64(self, image_np):
 

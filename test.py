@@ -84,9 +84,7 @@ class MyGUI(QtWidgets.QWidget):
         self.timerCamera.timeout.connect(self.show_pic)
         self.timerCamera.start(10)
         self.sensor = Sensor.Sensor()
-        print(0)
         # self.sensor.MQTTServer('123.56.0.232', 61613, 'Win10')
-        print(1)
         # 组件初始化
         data = {'temp': '22',
                 'hum': '64',
@@ -158,7 +156,7 @@ class MyGUI(QtWidgets.QWidget):
 
             self.cameraWidget.setPixmap(QPixmap.fromImage(showImage_cam))
 
-            self.timerCamera.start(10)
+            self.timerCamera.start(50)
 
     def ChangeCamera(self, i):
         self.aip = CameraDevice.FacesOps(i)
