@@ -5,7 +5,7 @@ import time
 import cv2 as cv
 import math
 import numpy as np
-from Class import Config
+from MMSTools import Config
 
 
 class FacesOps(object):

@@ -4,8 +4,10 @@ Created on 2019年2月28日
 
 @author: Administrator
 '''
-from PyQt4 import QtCore
 import time
+
+from PyQt5 import QtCore
+
 
 class Timer(QtCore.QThread):
 
@@ -22,7 +24,7 @@ class Timer(QtCore.QThread):
             if self.stoped:
                 return
             self.emit(QtCore.SIGNAL(self.signal))
-            #40毫秒发送一次信号
+            # 40毫秒发送一次信号
             time.sleep(0.04)
 
     def stop(self):

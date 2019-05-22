@@ -8,8 +8,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-from Class import Sensor
-from Class import FacesOps
+from MMSTools import Sensor
+from MMSTools import CameraDevice
 
 
 class WorkThread(QThread):
@@ -57,7 +57,7 @@ class MyGUI(QtWidgets.QWidget):
     PPM_area = 0
 
     def __init__(self):
-        self.aip = FacesOps.FacesOps()
+        self.aip = CameraDevice.FacesOps()
         super(MyGUI, self).__init__()
         self.initUI()
 
