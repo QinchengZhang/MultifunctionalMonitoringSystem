@@ -16,13 +16,16 @@ class Sensor(object):
                      'PPM': 0}
 
     def getDatabySerial(self, com):
-        self.ser = serial.Serial('COM' + com)
+        try:
+            self.ser = serial.Serial('COM' + com)
+        except BaseException:
+            return False, 0
         data = self.ser.readline()
         data = json.decoder(data)
         self.data = {'temp': data['temp'],
                      'hum': data['hum'],
                      'PPM': data['PPM']}
-        return self.data
+        return True, self.data
 
     def MQTTServer(self, hostname, port, clientid):
         self.client = mqtt.Client(clientid)

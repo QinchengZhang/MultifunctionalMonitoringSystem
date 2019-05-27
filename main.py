@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import *
 
 from MMSTools import Sensor
 from MMSTools import CameraDevice
+from MMSTools import Thermal
 
 
 class WorkThread(QThread):
@@ -58,6 +59,7 @@ class MyGUI(QtWidgets.QWidget):
 
     def __init__(self):
         self.aip = CameraDevice.FacesOps()
+        self.thermal = Thermal.Thermal(3)
         super(MyGUI, self).__init__()
         self.initUI()
 
@@ -79,8 +81,6 @@ class MyGUI(QtWidgets.QWidget):
         self.right_box.setLayout(self.right_layout)
         # 设备初始化
         self.timerCamera = QTimer(self)
-        self.cameraDevice = cv2.VideoCapture(0)
-        self.therimgDevice = cv2.VideoCapture('test.mp4')
         self.timerCamera.timeout.connect(self.show_pic)
         self.timerCamera.start(10)
         self.sensor = Sensor.Sensor()
@@ -150,7 +150,7 @@ class MyGUI(QtWidgets.QWidget):
     def show_pic(self):
 
         success_cam, frame_cam = self.aip.detectFaces()
-        success_ther, frame_ther = self.therimgDevice.read()
+        success_ther, frame_ther = self.thermal.getImage()
 
         if success_cam and success_ther:
             show_cam = cv2.cvtColor(frame_cam, cv2.COLOR_BGR2RGB)

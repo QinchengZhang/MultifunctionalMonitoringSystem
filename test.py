@@ -51,13 +51,13 @@ class MyGUI(QtWidgets.QWidget):
     therimgDevice = 0
     cameraWidget = 0
     therimgWidget = 0
-    sensor = 0
     temp_area = 0
     hum_area = 0
     PPM_area = 0
 
     def __init__(self):
         self.aip = CameraDevice.FacesOps()
+        self.sensor = Sensor.Sensor()
         super(MyGUI, self).__init__()
         self.initUI()
 
@@ -86,16 +86,18 @@ class MyGUI(QtWidgets.QWidget):
         self.sensor = Sensor.Sensor()
         # self.sensor.MQTTServer('123.56.0.232', 61613, 'Win10')
         # 组件初始化
-        data = {'temp': '22',
-                'hum': '64',
-                'PPM': '65'}
-
+        success, data = self.sensor.getDatabySerial(3)
         self.temp_area = QLineEdit()
         self.hum_area = QLineEdit()
         self.PPM_area = QLineEdit()
-        self.temp_area.setText('温度：' + data['temp'] + '℃')
-        self.hum_area.setText('湿度：' + data['hum'] + '%')
-        self.PPM_area.setText('空气质量：' + data['PPM'])
+        if success:
+            self.temp_area.setText('温度：' + data['temp'] + '℃')
+            self.hum_area.setText('湿度：' + data['hum'] + '%')
+            self.PPM_area.setText('空气质量：' + data['PPM'])
+        else:
+            self.temp_area.setText('温度：' + '获取失败')
+            self.hum_area.setText('湿度：' + '获取失败')
+            self.PPM_area.setText('空气质量：' + '获取失败')
         self.temp_area.setReadOnly(True)
         self.hum_area.setReadOnly(True)
         self.PPM_area.setReadOnly(True)
