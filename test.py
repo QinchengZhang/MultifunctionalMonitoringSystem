@@ -46,6 +46,7 @@ class MyGUI(QtWidgets.QWidget):
     left_box = 0
     mid_box = 0
     right_box = 0
+    timerSensor = 0
     timerCamera = 0
     cameraDevice = 0
     therimgDevice = 0
@@ -57,7 +58,7 @@ class MyGUI(QtWidgets.QWidget):
 
     def __init__(self):
         self.aip = CameraDevice.FacesOps()
-        self.sensor = Sensor.Sensor()
+        self.sensor = Sensor.Sensor(com=3)
         super(MyGUI, self).__init__()
         self.initUI()
 
@@ -79,30 +80,25 @@ class MyGUI(QtWidgets.QWidget):
         self.right_box.setLayout(self.right_layout)
         # 设备初始化
         self.timerCamera = QTimer(self)
+        self.timerSensor = QTimer(self)
         self.cameraDevice = cv2.VideoCapture(0)
         self.therimgDevice = cv2.VideoCapture('test.mp4')
+        self.timerSensor.timeout.connect(self.show_env)
+        self.timerSensor.start(5000)
         self.timerCamera.timeout.connect(self.show_pic)
         self.timerCamera.start(10)
-        self.sensor = Sensor.Sensor()
         # self.sensor.MQTTServer('123.56.0.232', 61613, 'Win10')
         # 组件初始化
-        success, data = self.sensor.getDatabySerial(3)
+
         self.temp_area = QLineEdit()
         self.hum_area = QLineEdit()
         self.PPM_area = QLineEdit()
-        if success:
-            self.temp_area.setText('温度：' + data['temp'] + '℃')
-            self.hum_area.setText('湿度：' + data['hum'] + '%')
-            self.PPM_area.setText('空气质量：' + data['PPM'])
-        else:
-            self.temp_area.setText('温度：' + '获取失败')
-            self.hum_area.setText('湿度：' + '获取失败')
-            self.PPM_area.setText('空气质量：' + '获取失败')
         self.temp_area.setReadOnly(True)
         self.hum_area.setReadOnly(True)
         self.PPM_area.setReadOnly(True)
         self.cameraWidget = QLabel()
         self.therimgWidget = QLabel()
+        self.show_env()
         self.show_pic()
         # cameraWidget2.newFrame.connect(self.onNewFrame)
         Pushbutton_start = QPushButton('start', self)
@@ -159,6 +155,17 @@ class MyGUI(QtWidgets.QWidget):
             self.cameraWidget.setPixmap(QPixmap.fromImage(showImage_cam))
 
             self.timerCamera.start(50)
+
+    def show_env(self):
+        success, data = self.sensor.getDatabySerial()
+        if success:
+            self.temp_area.setText('温度： %.2f℃' % data['temp'])
+            self.hum_area.setText('湿度：%.2f' % data['hum'] + '%')
+            self.PPM_area.setText('空气质量：%d' % data['PPM'])
+        else:
+            self.temp_area.setText('温度：' + '获取失败')
+            self.hum_area.setText('湿度：' + '获取失败')
+            self.PPM_area.setText('空气质量：' + '获取失败')
 
     def ChangeCamera(self, i):
         self.aip.changeCam(i)

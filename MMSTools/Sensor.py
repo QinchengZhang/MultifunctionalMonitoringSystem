@@ -6,22 +6,20 @@ import time
 
 
 class Sensor(object):
-    data = 0
-    ser = 0
-    client = 0
-
-    def __init__(self):
+    def __init__(self, com):
+        try:
+            self.ser = serial.Serial('COM%d' % com)
+        except serial.SerialException as e:
+            print(e)
+            raise Exception("could not open COM%d" % com)
+            return
         self.data = {'temp': 0,
                      'hum': 0,
                      'PPM': 0}
 
-    def getDatabySerial(self, com):
-        try:
-            self.ser = serial.Serial('COM' + com)
-        except BaseException:
-            return False, 0
+    def getDatabySerial(self):
         data = self.ser.readline()
-        data = json.decoder(data)
+        data = json.loads(data)
         self.data = {'temp': data['temp'],
                      'hum': data['hum'],
                      'PPM': data['PPM']}
