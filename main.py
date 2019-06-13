@@ -48,6 +48,7 @@ class MyGUI(QtWidgets.QWidget):
     mid_box = 0
     right_box = 0
     timerCamera = 0
+    timerSensor = 0
     cameraDevice = 0
     therimgDevice = 0
     cameraWidget = 0
@@ -58,8 +59,9 @@ class MyGUI(QtWidgets.QWidget):
     PPM_area = 0
 
     def __init__(self):
+        self.sensor = Sensor.Sensor(com=3)
         self.aip = CameraDevice.FacesOps()
-        self.thermal = Thermal.Thermal(3)
+        self.thermal = Thermal.Thermal(4)
         super(MyGUI, self).__init__()
         self.initUI()
 
@@ -83,14 +85,9 @@ class MyGUI(QtWidgets.QWidget):
         self.timerCamera = QTimer(self)
         self.timerCamera.timeout.connect(self.show_pic)
         self.timerCamera.start(10)
-        self.sensor = Sensor.Sensor()
-        data = self.sensor.getDatabySerial(3)
-        # self.sensor.MQTTServer('123.56.0.232', 61613, 'Win10')
-        # 组件初始化
-        data = {'temp': '22',
-                'hum': '64',
-                'PPM': '65'}
-
+        self.timerSensor = QTimer(self)
+        self.timerSensor.timeout.connect(self.show_env)
+        self.timerSensor.start(5000)
         self.temp_area = QLineEdit()
         self.hum_area = QLineEdit()
         self.PPM_area = QLineEdit()

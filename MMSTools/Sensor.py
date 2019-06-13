@@ -8,22 +8,31 @@ import time
 class Sensor(object):
     def __init__(self, com):
         try:
-            self.ser = serial.Serial('COM%d' % com)
+            self.ser = serial.Serial(com)
+            self.isopened = True
         except serial.SerialException as e:
-            print(e)
-            raise Exception("could not open COM%d" % com)
-            return
+            self.isopened = False
         self.data = {'temp': 0,
                      'hum': 0,
                      'PPM': 0}
 
+    def refindSensor(self, com):
+        try:
+            self.ser = serial.Serial(com)
+            self.isopened = True
+        except serial.SerialException as e:
+            self.isopened = False
+
     def getDatabySerial(self):
-        data = self.ser.readline()
-        data = json.loads(data)
-        self.data = {'temp': data['temp'],
-                     'hum': data['hum'],
-                     'PPM': data['PPM']}
-        return True, self.data
+        if self.isopened:
+            data = self.ser.readline()
+            data = json.loads(data)
+            self.data = {'temp': data['temp'],
+                         'hum': data['hum'],
+                         'PPM': data['PPM']}
+            return True, self.data
+        else:
+            return False, self.data
 
     def MQTTServer(self, hostname, port, clientid):
         self.client = mqtt.Client(clientid)

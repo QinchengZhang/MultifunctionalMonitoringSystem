@@ -12,7 +12,7 @@ class Thermal(object):
         self.t0 = time.time()
         self.Tmax = 40
         self.Tmin = 20
-        self.ser = serial.Serial('COM%d' % com)
+        self.ser = serial.Serial(com)
         self.ser.baudrate = 460800
         self.ser.write(serial.to_bytes([0xA5, 0x15, 0x03, 0xBD]))
 
@@ -59,6 +59,13 @@ class Thermal(object):
         array.shape = (24, 32)
         return array
 
+    def transoform(self, image):
+        min = image.min()
+        max = image.max()
+        img = ((image - min) / (max - min)) * 255
+        array = np.asarray(img, dtype=np.uint8)
+        return array
+
     def getImage(self):
         head = binascii.hexlify(self.ser.read(2))
         while str(head, encoding='utf=8') != '5a5a':
@@ -69,8 +76,15 @@ class Thermal(object):
         # The data is ready, let's handle it!
         Ta, temp_array = self.get_temp_array(data)
         ta_img = self.td_to_image(temp_array)
-        print(ta_img)
+        min = ta_img.min()
+        max = ta_img.max()
         # Image processing
-        img = cv2.applyColorMap(ta_img, cv2.COLORMAP_RAINBOW)
+        img = self.transoform(ta_img)
+        # print(img, img.min(), img.max())
+        img = cv2.GaussianBlur(img, (3, 3), 0)
+        font = cv2.FONT_HERSHEY_SIMPLEX  # 定义字体
+        img = cv2.applyColorMap(img, cv2.COLORMAP_JET)
         img = cv2.resize(img, (640, 480), interpolation=cv2.INTER_CUBIC)
+        cv2.putText(img, 'MIN_TEMP:{:.2f} MAX_TEMP:{:.2f} TA_TEMP:{:.2f}'.format(min, max, Ta), (0, 15), font, 0.5,
+                    (255, 255, 255), 1)
         return True, img
