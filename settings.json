@@ -1,0 +1,22 @@
+{
+    "Cameras": {
+        "Camera1": {
+            "ID": 1,
+            "location": "实验室东南角",
+            "name": "rtsp://admin:123456@192.168.137.155:554/stream1"
+        },
+        "Camera2": {
+            "ID": 2,
+            "location": "实验室西北角",
+            "name": "rtsp://admin:123456@192.168.137.155:554/stream1"
+        }
+    },
+    "Aip": {
+        "APP_ID": "14703084",
+        "APP_KEY": "HGhYDodrGbB9SQleM1l1XRiG",
+        "SECRET_KEY": "V6dKuN6VnLXdhEuvGgIFWVNSsD2lL1Ho"
+    },
+    "Thermal": {
+        "serial": "COM3"
+    }
+}

@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 import base64 as bs
 import time
+from aip import AipFace
 
 import cv2 as cv
 import math
 import numpy as np
-from MMSTools import Config
 
 
 class FacesOps(object):
-    def __init__(self, cam=0):
-        self.aip = Config.getAipFace()
+    def __init__(self, APP_ID, API_KEY, SECRET_KEY, cam=0):
+        self.aip = AipFace(APP_ID, API_KEY, SECRET_KEY)
         self.video = cv.VideoCapture(cam)
         if not self.video.isOpened():
             print('无效摄像头')

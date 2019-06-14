@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*
-import time
 import json
+import time
+
 import cv2
 import paho.mqtt.client as mqtt
 from PyQt5 import QtWidgets
@@ -8,10 +9,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-from MMSTools import Sensor
 from MMSTools import CameraDevice
 from MMSTools import Thermal
-from MMSTools import EnvServer
 
 
 class WorkThread(QThread):
@@ -34,32 +33,27 @@ class WorkThread(QThread):
 
 
 class MyGUI(QtWidgets.QWidget):
-    CameraDevices = 0
-    menubar = 0
-    icon = 0
-    left_layout = 0
-    mid_layout = 0
-    right_layout = 0
-    left_box = 0
-    mid_box = 0
-    right_box = 0
-    timerSensor = 0
-    timerCamera = 0
-    cameraWidget = 0
-    therimgWidget = 0
-    temp_area = 0
-    hum_area = 0
-    PPM_area = 0
 
-    def __init__(self):
+    def __init__(self, parent=None):
+        super(MyGUI, self).__init__(parent)
+        self.CameraDevices = {}
         self.data = {}
+        self.aip_config = {}
+        self.thermal_com = 0
         self.bwThread = WorkThread()
 
-        self.initCameras()
-        self.thermal_com = 'COM3'
-        self.sensor_com = 'COM4'
-        self.thermal = Thermal.Thermal(self.thermal_com)
-        self.aip = CameraDevice.FacesOps(self.CameraDevices['Camera1']['name'])
+        self.initSettings()
+        try:
+            self.thermal = Thermal.Thermal(self.thermal_com)
+        except:
+            QMessageBox.warning(self, "提示", "热成像模块打开失败！", QMessageBox.Yes, QMessageBox.Yes)
+            sys.exit()
+        try:
+            self.aip = CameraDevice.FacesOps(self.aip_config['APP_ID'], self.aip_config['APP_KEY'],
+                                             self.aip_config['SECRET_KEY'], self.CameraDevices['Camera1']['name'])
+        except:
+            QMessageBox.warning(self, "提示", "摄像头打开失败！", QMessageBox.Yes, QMessageBox.Yes)
+            sys.exit()
         super(MyGUI, self).__init__()
         self.initUI()
 
@@ -75,8 +69,8 @@ class MyGUI(QtWidgets.QWidget):
             self.bwThread.updated.connect(self.show_env_from_server)
             self.bwThread.start()
         except Exception as e:
-            QMessageBox.information(self, self.tr("提示"), self.tr("连接失败！"))
-
+            QMessageBox.warning(self, "提示", "连接失败！", QMessageBox.Yes, QMessageBox.Yes)
+            sys.exit()
     def on_connect(self, client, userdata, flags, rc):
         client.subscribe('MMS/devices/environment/')
 
@@ -85,14 +79,17 @@ class MyGUI(QtWidgets.QWidget):
         self.bwThread.updated.emit()  # 发送信号
 
     def show_env_from_server(self):
-        self.temp_area.setText('%.2f℃' % self.data['temp'])
-        self.hum_area.setText('%.2f' % self.data['hum'] + '%')
-        self.PPM_area.setText('%d' % self.data['PPM'])
+        self.temp_area.setValue(self.data['temp'])
+        self.hum_area.setValue(self.data['hum'])
+        self.PPM_area.setValue(self.data['PPM'])
 
-    def initCameras(self):
-        cameras = open('Cameras.json', encoding='utf-8')
-        cameras = cameras.read()
-        self.CameraDevices = json.loads(cameras)
+    def initSettings(self):
+        settings = open('settings.json', encoding='utf-8')
+        settings = settings.read()
+        settings = json.loads(settings)
+        self.CameraDevices = settings['Cameras']
+        self.aip_config = settings['Aip']
+        self.thermal_com = settings['Thermal']['serial']
 
     def initUI(self):
         self.MQTTConnect(clientid='MMS', hostname='mq.tongxinmao.com')
@@ -119,17 +116,22 @@ class MyGUI(QtWidgets.QWidget):
         temp_label = QLabel('温度')
         hum_label = QLabel('湿度')
         PPM_label = QLabel('PPM')
-        self.temp_area = QLineEdit()
-        self.hum_area = QLineEdit()
-        self.PPM_area = QLineEdit()
-        self.temp_area.setReadOnly(True)
-        self.hum_area.setReadOnly(True)
-        self.PPM_area.setReadOnly(True)
+        self.temp_area = QProgressBar(self)
+        self.temp_area.setRange(0, 50)
+        self.temp_area.setMinimumWidth(200)
+        self.temp_area.setMinimumHeight(25)
+        self.temp_area.setFormat('%v℃')
+        self.hum_area = QProgressBar(self)
+        self.hum_area.setMinimumWidth(200)
+        self.hum_area.setMinimumHeight(25)
+        self.PPM_area = QProgressBar(self)
+        self.PPM_area.setMinimumWidth(200)
+        self.PPM_area.setMinimumHeight(25)
         self.cameraWidget = QLabel()
         self.therimgWidget = QLabel()
         # self.show_env()
         self.show_pic()
-        Pushbutton_refresh = QPushButton('刷新数据', self)
+        # Pushbutton_refresh = QPushButton('刷新数据', self)
         ComboBox_left = QComboBox()
         for key, values in self.CameraDevices.items():
             ComboBox_left.addItem('摄像头{:d}:{location}'.format(values['ID'], location=values['location']))
@@ -143,7 +145,7 @@ class MyGUI(QtWidgets.QWidget):
         self.left_layout.addWidget(self.cameraWidget)
         self.left_layout.addWidget(ComboBox_left)
         self.mid_layout.addWidget(self.therimgWidget)
-        self.right_layout.addWidget(Pushbutton_refresh)
+        # self.right_layout.addWidget(Pushbutton_refresh)
         self.right_layout.addWidget(temp_label)
         self.right_layout.addWidget(self.temp_area)
         self.right_layout.addWidget(hum_label)
@@ -182,8 +184,8 @@ class MyGUI(QtWidgets.QWidget):
             self.timerCamera.start(100)
 
     def ChangeCamera(self, i):
-        print(i)
-        self.aip.changeCam(self.CameraDevices[i]['name'])
+        name = self.CameraDevices['Camera{:d}'.format(i + 1)]['name']
+        self.aip.changeCam(name)
         return
 
 

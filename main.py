@@ -99,7 +99,7 @@ class MyGUI(QtWidgets.QWidget):
         self.PPM_area.setText('%d' % self.data['PPM'])
 
     def initCameras(self):
-        cameras = open('Cameras.json', encoding='utf-8')
+        cameras = open('settings.json', encoding='utf-8')
         cameras = cameras.read()
         self.CameraDevices = json.loads(cameras)
 
