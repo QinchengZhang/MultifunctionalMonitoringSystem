@@ -1,0 +1,12 @@
+{
+    "Camera1": {
+        "ID": 1,
+        "location": "实验室东南角",
+        "name": "rtsp://admin:123456@192.168.137.155:554/stream1"
+    },
+    "Camera2": {
+        "ID": 2,
+        "location": "实验室西北角",
+        "name": "rtsp://admin:123456@192.168.137.155:554/stream1"
+    }
+}

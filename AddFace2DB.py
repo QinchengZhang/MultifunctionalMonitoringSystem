@@ -5,7 +5,7 @@ import cv2 as cv
 from MMSTools import CameraDevice
 
 # 初始化AipFace对象
-aipFace = CameraDevice.FacesOps()
+aipFace = CameraDevice.FacesOps('rtsp://admin:123456@192.168.137.155:554/stream1')
 
 # 设置
 options = {
@@ -14,5 +14,9 @@ options = {
 
 while True:
     result, success, frame = aipFace.reg2DB('cdmcadmin', 'zqc', options=options)
-    cv.imshow('regface', frame)
     print(result)
+    cv.imshow('regface', frame)
+    k = cv.waitKey(5) & 0xFF
+    if k == 27:
+        break
+cv.destroyAllWindows()

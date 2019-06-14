@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*
 import time
-
+import json
 import cv2
 import paho.mqtt.client as mqtt
 from PyQt5 import QtWidgets
@@ -11,34 +11,30 @@ from PyQt5.QtWidgets import *
 from MMSTools import Sensor
 from MMSTools import CameraDevice
 from MMSTools import Thermal
+from MMSTools import EnvServer
 
 
 class WorkThread(QThread):
-    sinOut = pyqtSignal(int)
-    client = mqtt.Client(client_id='Win10')
+    updated = pyqtSignal()  # 自定义信号，更新数据
 
-    def __int__(self):
-        super(WorkThread, self).__init__()
+    def __init__(self, parent=None):
+        super(WorkThread, self).__init__(parent)
+        self.flag = 1
 
     def run(self):
-        # 消息推送回调函数
-        self.client = mqtt.Client(client_id='Win10')
-        self.client.on_connect = self.on_connect
-        self.client.on_message = self.on_message
-        self.client.connect('123.56.0.232', 61613, 60)
-        self.client.loop_forever()
+        while True:
+            if self.flag == 1:
+                client.loop(timeout=60)
+            else:
+                break
 
-    def on_connect(self, client, userdata, flags, rc):
-        print("Connected with result code " + str(rc))
-        # 连接完成之后订阅gpio主题
-        client.subscribe("devices/environment/")
-
-    def on_message(self, client, userdata, msg):
-        print(str(msg.topic) + " " + str(msg.payload))
-        self.sinOut.emit(msg.payload)  # 反馈信号出去
+    def stop(self):
+        self.flag = 0
+        print(self.flag)
 
 
 class MyGUI(QtWidgets.QWidget):
+    CameraDevices = 0
     menubar = 0
     icon = 0
     left_layout = 0
@@ -49,8 +45,6 @@ class MyGUI(QtWidgets.QWidget):
     right_box = 0
     timerSensor = 0
     timerCamera = 0
-    cameraDevice = 0
-    therimgDevice = 0
     cameraWidget = 0
     therimgWidget = 0
     temp_area = 0
@@ -58,16 +52,50 @@ class MyGUI(QtWidgets.QWidget):
     PPM_area = 0
 
     def __init__(self):
-        self.camera_name = ''
+        self.data = {}
+        self.bwThread = WorkThread()
+
+        self.initCameras()
         self.thermal_com = 'COM3'
         self.sensor_com = 'COM4'
         self.thermal = Thermal.Thermal(self.thermal_com)
-        self.aip = CameraDevice.FacesOps()
-        self.sensor = Sensor.Sensor(com=self.sensor_com)
+        self.aip = CameraDevice.FacesOps(self.CameraDevices['Camera1']['name'])
         super(MyGUI, self).__init__()
         self.initUI()
 
+    def MQTTConnect(self, clientid, hostname):
+        global client
+        client = mqtt.Client(client_id=clientid)
+        client.on_connect = self.on_connect
+        client.on_message = self.on_message
+
+        try:
+            client.connect(hostname, 18830, keepalive=60)  # 向服务器发起连接
+            self.bwThread = WorkThread()
+            self.bwThread.updated.connect(self.show_env_from_server)
+            self.bwThread.start()
+        except Exception as e:
+            QMessageBox.information(self, self.tr("提示"), self.tr("连接失败！"))
+
+    def on_connect(self, client, userdata, flags, rc):
+        client.subscribe('MMS/devices/environment/')
+
+    def on_message(self, client, userdata, msg):
+        self.data = json.loads(msg.payload)
+        self.bwThread.updated.emit()  # 发送信号
+
+    def show_env_from_server(self):
+        self.temp_area.setText('%.2f℃' % self.data['temp'])
+        self.hum_area.setText('%.2f' % self.data['hum'] + '%')
+        self.PPM_area.setText('%d' % self.data['PPM'])
+
+    def initCameras(self):
+        cameras = open('Cameras.json', encoding='utf-8')
+        cameras = cameras.read()
+        self.CameraDevices = json.loads(cameras)
+
     def initUI(self):
+        self.MQTTConnect(clientid='MMS', hostname='mq.tongxinmao.com')
         # ICON设置
         self.icon = QIcon("./imgs/cdmc.png")
         self.setWindowIcon(self.icon)
@@ -85,9 +113,6 @@ class MyGUI(QtWidgets.QWidget):
         self.right_box.setLayout(self.right_layout)
         # 设备初始化
         self.timerCamera = QTimer(self)
-        self.timerSensor = QTimer(self)
-        self.timerSensor.timeout.connect(self.show_env)
-        self.timerSensor.start(5000)
         self.timerCamera.timeout.connect(self.show_pic)
         self.timerCamera.start(10)
         # 组件初始化
@@ -102,14 +127,12 @@ class MyGUI(QtWidgets.QWidget):
         self.PPM_area.setReadOnly(True)
         self.cameraWidget = QLabel()
         self.therimgWidget = QLabel()
-        self.show_env()
+        # self.show_env()
         self.show_pic()
-        # cameraWidget2.newFrame.connect(self.onNewFrame)
         Pushbutton_refresh = QPushButton('刷新数据', self)
-        Pushbutton_refresh.clicked.connect(self.refresh_env)
         ComboBox_left = QComboBox()
-        for i in range(0, 3):
-            ComboBox_left.addItem('摄像头' + str(i + 1))  # unicode('摄像头' + str(i), 'utf-8')
+        for key, values in self.CameraDevices.items():
+            ComboBox_left.addItem('摄像头{:d}:{location}'.format(values['ID'], location=values['location']))
         ComboBox_left.currentIndexChanged.connect(self.ChangeCamera)  # 发射currentIndexChanged信号，连接下面的selectionchange槽
 
         # 设置窗体
@@ -156,25 +179,11 @@ class MyGUI(QtWidgets.QWidget):
             self.cameraWidget.setPixmap(QPixmap.fromImage(showImage_cam))
             self.therimgWidget.setPixmap(QPixmap.fromImage(showImage_ther))
 
-            self.timerCamera.start(10)
-
-    def refresh_env(self):
-        self.sensor.refindSensor(self.sensor_com)
-        self.show_env()
-
-    def show_env(self):
-        success, data = self.sensor.getDatabySerial()
-        if success:
-            self.temp_area.setText('%.2f℃' % data['temp'])
-            self.hum_area.setText('%.2f' % data['hum'] + '%')
-            self.PPM_area.setText('%d' % data['PPM'])
-        else:
-            self.temp_area.setText('获取失败')
-            self.hum_area.setText('获取失败')
-            self.PPM_area.setText('获取失败')
+            self.timerCamera.start(100)
 
     def ChangeCamera(self, i):
-        self.aip.changeCam(i)
+        print(i)
+        self.aip.changeCam(self.CameraDevices[i]['name'])
         return
 
 

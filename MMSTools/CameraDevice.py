@@ -25,7 +25,6 @@ class FacesOps(object):
         self.video.set(6, cv.VideoWriter.fourcc('M', 'J', 'P', 'G'))
 
     def image_to_base64(self, image_np):
-
         image = cv.imencode('.jpg', image_np)[1]
         image_code = str(bs.b64encode(image))[2:-1]
 
@@ -47,13 +46,14 @@ class FacesOps(object):
         detect_options = {
             'max_face_num': 10,  # 检测人脸的最大数量
         }
-        group_id_list = "cdmcadmin,cdmcuser,cdmcstranger"
+        group_id_list = "cdmcadmin,cdmcuser"
         search_options = {
             'max_user_num': 1,
         }
         imageType = "BASE64"
 
         success, frame = self.video.read()
+        frame = cv.resize(frame, (640, 480), interpolation=cv.INTER_CUBIC)
         image64 = self.image_to_base64(frame)
         result = self.aip.detect(image64, imageType, detect_options)
         if result['error_code'] == 0:
