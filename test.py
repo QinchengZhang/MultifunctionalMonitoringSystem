@@ -41,7 +41,6 @@ class MyGUI(QtWidgets.QWidget):
         self.aip_config = {}
         self.thermal_com = 0
         self.bwThread = WorkThread()
-
         self.initSettings()
         try:
             self.thermal = Thermal.Thermal(self.thermal_com)
@@ -71,6 +70,7 @@ class MyGUI(QtWidgets.QWidget):
         except Exception as e:
             QMessageBox.warning(self, "提示", "连接失败！", QMessageBox.Yes, QMessageBox.Yes)
             sys.exit()
+
     def on_connect(self, client, userdata, flags, rc):
         client.subscribe('MMS/devices/environment/')
 
