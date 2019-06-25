@@ -76,6 +76,7 @@ class Thermal(object):
         # The data is ready, let's handle it!
         Ta, temp_array = self.get_temp_array(data)
         ta_img = self.td_to_image(temp_array)
+        # print(ta_img)
         min = ta_img.min()
         max = ta_img.max()
         # Image processing
@@ -83,7 +84,7 @@ class Thermal(object):
         # print(img, img.min(), img.max())
         img = cv2.GaussianBlur(img, (3, 3), 0)
         font = cv2.FONT_HERSHEY_SIMPLEX  # 定义字体
-        img = cv2.applyColorMap(img, cv2.COLORMAP_JET)
+        img = cv2.applyColorMap(img, cv2.COLORMAP_RAINBOW)
         img = cv2.resize(img, (640, 480), interpolation=cv2.INTER_CUBIC)
         cv2.putText(img, 'MIN_TEMP:{:.2f} MAX_TEMP:{:.2f} TA_TEMP:{:.2f}'.format(min, max, Ta), (0, 15), font, 0.5,
                     (255, 255, 255), 1)

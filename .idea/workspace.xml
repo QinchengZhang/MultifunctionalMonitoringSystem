@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="57241d85-4f76-4b4a-8126-8c5c4cb7298d" name="Default Changelist" comment="修复部分bug">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="57241d85-4f76-4b4a-8126-8c5c4cb7298d" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/MMSTools/Thermal.py" beforeDir="false" afterPath="$PROJECT_DIR$/MMSTools/Thermal.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/settings.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -13,11 +14,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="19">
-              <caret line="1" selection-start-line="1" selection-end-line="1" />
+            <state relative-caret-position="76">
+              <caret line="109" column="32" lean-forward="true" selection-start-line="109" selection-start-column="32" selection-end-line="109" selection-end-column="32" />
               <folding>
                 <element signature="e#23#34#0" expanded="true" />
               </folding>
@@ -58,11 +59,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/MMSTools/Thermal.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="456">
-              <caret line="29" selection-start-line="29" selection-end-line="29" />
+            <state relative-caret-position="114">
+              <caret line="78" column="10" selection-start-line="78" selection-start-column="10" selection-end-line="78" selection-end-column="10" />
               <folding>
                 <element signature="e#11#30#0" expanded="true" />
               </folding>
@@ -99,7 +100,6 @@
         <option value="$PROJECT_DIR$/MMSTools/thermal.py" />
         <option value="$PROJECT_DIR$/test_sensor.py" />
         <option value="$PROJECT_DIR$/../../张钦程/毕业设计/资料/GY-MCU90640-RPI-Python-master/main.py" />
-        <option value="$PROJECT_DIR$/MMSTools/Thermal.py" />
         <option value="$PROJECT_DIR$/MMSTools/Config.py" />
         <option value="$PROJECT_DIR$/AddFace2DB.py" />
         <option value="$PROJECT_DIR$/test_camera.py" />
@@ -111,6 +111,7 @@
         <option value="$PROJECT_DIR$/MMSTools/CameraDevice.py" />
         <option value="$PROJECT_DIR$/settings.json" />
         <option value="$PROJECT_DIR$/test.py" />
+        <option value="$PROJECT_DIR$/MMSTools/Thermal.py" />
       </list>
     </option>
   </component>
@@ -403,7 +404,14 @@
       <option name="project" value="LOCAL" />
       <updated>1560515477191</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="修复部分bug">
+      <created>1560914717048</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1560914717048</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -419,14 +427,13 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.17833553" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17833553" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.4993395" weight="0.3286119" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49009246" weight="0.3286119" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.48943198" weight="0.3286119" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.4993395" weight="0.39943343" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -434,7 +441,7 @@
       <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.497358" weight="0.3286119" />
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info anchor="bottom" id="Python Console" order="9" sideWeight="0.4927345" weight="0.3286119" />
-      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.50990754" side_tool="true" visible="true" weight="0.3286119" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.510568" side_tool="true" visible="true" weight="0.3286119" />
       <window_info anchor="bottom" id="Educational.CheckDetails" order="11" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -600,8 +607,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="19">
-          <caret line="1" selection-start-line="1" selection-end-line="1" />
+        <state relative-caret-position="76">
+          <caret line="109" column="32" lean-forward="true" selection-start-line="109" selection-start-column="32" selection-end-line="109" selection-end-column="32" />
           <folding>
             <element signature="e#23#34#0" expanded="true" />
           </folding>
@@ -637,8 +644,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/MMSTools/Thermal.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="456">
-          <caret line="29" selection-start-line="29" selection-end-line="29" />
+        <state relative-caret-position="114">
+          <caret line="78" column="10" selection-start-line="78" selection-start-column="10" selection-end-line="78" selection-end-column="10" />
           <folding>
             <element signature="e#11#30#0" expanded="true" />
           </folding>

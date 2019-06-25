@@ -40,6 +40,7 @@ class MyGUI(QtWidgets.QWidget):
         self.data = {}
         self.aip_config = {}
         self.thermal_com = 0
+        self.MQTT_config = {}
         self.bwThread = WorkThread()
         self.initSettings()
         try:
@@ -56,14 +57,15 @@ class MyGUI(QtWidgets.QWidget):
         super(MyGUI, self).__init__()
         self.initUI()
 
-    def MQTTConnect(self, clientid, hostname):
-        global client
+    def MQTTConnect(self, clientid, hostname, port, subscribe):
+        global client, sub
+        sub = subscribe
         client = mqtt.Client(client_id=clientid)
         client.on_connect = self.on_connect
         client.on_message = self.on_message
 
         try:
-            client.connect(hostname, 18830, keepalive=60)  # 向服务器发起连接
+            client.connect(hostname, port, keepalive=60)  # 向服务器发起连接
             self.bwThread = WorkThread()
             self.bwThread.updated.connect(self.show_env_from_server)
             self.bwThread.start()
@@ -72,7 +74,7 @@ class MyGUI(QtWidgets.QWidget):
             sys.exit()
 
     def on_connect(self, client, userdata, flags, rc):
-        client.subscribe('MMS/devices/environment/')
+        client.subscribe(sub)
 
     def on_message(self, client, userdata, msg):
         self.data = json.loads(msg.payload)
@@ -90,9 +92,11 @@ class MyGUI(QtWidgets.QWidget):
         self.CameraDevices = settings['Cameras']
         self.aip_config = settings['Aip']
         self.thermal_com = settings['Thermal']['serial']
+        self.MQTT_config = settings['MQTT']
 
     def initUI(self):
-        self.MQTTConnect(clientid='MMS', hostname='mq.tongxinmao.com')
+        self.MQTTConnect(clientid='MMS', hostname=self.MQTT_config['hostname'], port=self.MQTT_config['port'],
+                         subscribe=self.MQTT_config['subscribe'])
         # ICON设置
         self.icon = QIcon("./imgs/cdmc.png")
         self.setWindowIcon(self.icon)
